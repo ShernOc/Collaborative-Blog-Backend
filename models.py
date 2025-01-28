@@ -94,6 +94,7 @@ class TokenBlocklist(db.Model):
     
     
     
+    
 # #Blog
 # #Collaboration 
 # #Comment 
