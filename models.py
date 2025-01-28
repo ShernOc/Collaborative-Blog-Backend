@@ -83,6 +83,13 @@ class Comment(db.Model):
     
     users= db.relationship("User", back_populates ="comments", lazy= True)
     blogs= db.relationship("Blog", back_populates="comments", lazy=True)
+    
+    
+    #Logout Flask Model 
+class TokenBlocklist(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        jti = db.Column(db.String(36), nullable=False, index=True)
+        created_at = db.Column(db.DateTime, nullable=False)
 
     
     
