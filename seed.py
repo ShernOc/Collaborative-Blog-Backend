@@ -1,6 +1,6 @@
 from faker import Faker
-from faker import Faker
 from models import db, User, Blog,Editors,Comment, db
+from app import app
 
 #Next is to add the dates
 # Commented out the Dates will be updated in the next work. 
@@ -105,8 +105,8 @@ def comment_data():
             db.session.rollback()
 
 # if __name__ == "__main__":
-#     # # user_data()
-#     # blog_data()
-#     # # editor_data()
-#     # # comment_data()
+    # user_data()
+    # blog_data()
+    # editor_data()
+    # comment_data()
     
