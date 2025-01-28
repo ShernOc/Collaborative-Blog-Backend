@@ -30,7 +30,7 @@ db.init_app(app)
 
 @app.route('/')
 def index(): 
-    return jsonify ({"Success " :"Collaborative Blogging Platform"})
+    return jsonify ({"Success" :"Collaborative Blogging Platform"})
 
 # #Authentication / jw_t 
 # app.config["JWT_SECRET_KEY"] = "Sherlyne-23456"  # Change this!
