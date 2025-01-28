@@ -6,6 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 #Blue print 
 user_bp = Blueprint("user_bp", __name__)
 
+#get all users
 @user_bp.route('/users', methods = ['GET'])
 # @jwt_required()
 def get_user():
@@ -31,7 +32,7 @@ def get_user():
 # @jwt_required()
 def get_user_id(id):
     # current_user_id = get_jwt_identity()
-    user = User.query.get(id ==id)
+    user = User.query.get(id)
     # users = User.query.filter_by(user_id = current_user_id)
     if user:
         return jsonify({  
@@ -76,7 +77,7 @@ def post_user_id():
     check_email = User.query.filter_by(email=email).first()
     
     if check_name or check_email:
-        return jsonify({"Error": "The User Already exist"}), 406
+        return jsonify({"Error": "The User already added"}), 406
     else: 
         #create a new user 
         new_user = User(name=name,email=email,password=password,is_admin=is_admin)

@@ -28,7 +28,8 @@ class User(db.Model):
     
     #A user write many blogs
     #relationships
-    blogs = db.relationship("Blog", back_populates = "users", lazy =True)
+    blogs = db.relationship("Blog", secondary = "editors",
+    back_populates = "users", lazy =True)
     editors = db.relationship("Editors", back_populates="users", lazy=True)
     comments =db.relationship("Comment", back_populates = "users", lazy = True)
     
@@ -51,19 +52,19 @@ class Blog(db.Model):
     is_published = db.Column(db.Boolean, nullable = False)
     
     # relationships
-    users= db.relationship("User", back_populates = "blogs", lazy = True, )
+    users= db.relationship("User", secondary = "editors", back_populates = "blogs", lazy = True,)
     editors = db.relationship("Editors", back_populates="blogs", lazy=True)
     comments = db.relationship("Comment", back_populates="blogs", lazy=True)
 
 
-# Editors Table 
+# Editors Table #Association table for many to many between the user and blog
 class Editors(db.Model):
     __tablename__ = "editors"
     
     id = db.Column(db.Integer, primary_key = True)
     blog_id = db.Column(db.Integer, db.ForeignKey("blogs.id"), nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"),nullable = False)
-    role = db.Column(Enum(*ROLE_ENUM, name="role_enum"),nullable =False)
+    role = db.Column(Enum(*ROLE_ENUM, name="role_enum"), nullable =False)
     
     # relationships 
     users= db.relationship("User", back_populates = "editors")
