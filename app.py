@@ -20,13 +20,14 @@ db.init_app(app)
 
 #import all the functions in views 
 # folder for views 
-# from Views import * 
+from views import * 
 
-# #register all the  blueprints 
-# app.register_blueprint(user_bp)
-# app.register_blueprint(feed_bp)
-# app.register_blueprint(staff_bp)
-# app.register_blueprint(auth_bp)
+#register all the  blueprints 
+app.register_blueprint(user_bp)
+app.register_blueprint(blog_bp)
+app.register_blueprint(editor_bp)
+app.register_blueprint(comment_bp)
+app.register_blueprint(auth_bp)
 
 @app.route('/')
 def index(): 
