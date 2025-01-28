@@ -10,10 +10,11 @@ user_bp = Blueprint("user_bp", __name__)
 # @jwt_required()
 def get_user():
     # current_user_id = get_jwt_identity()
-    
+    #get all the users 
     users = User.query.all()
     
     # users = User.query.filter_by(user_id = current_user_id)
+    #create an empty list to store the users 
     user_list= []
     
     for user in users:
@@ -30,8 +31,7 @@ def get_user():
 # @jwt_required()
 def get_user_id(id):
     # current_user_id = get_jwt_identity()
-    user = User.query.get(id)
-    
+    user = User.query.get(id ==id)
     # users = User.query.filter_by(user_id = current_user_id)
     if user:
         return jsonify({  
@@ -71,57 +71,71 @@ def post_user_id():
     password = data["password"]
     is_admin= data["is_admin"]
     
-    check_name = User.query.get(name)
-    check_email = User.query.get(name)
+    #Check name or email of the user exist and if error message. 
+    check_name = User.query.filter_by(name=name).first()
+    check_email = User.query.filter_by(email=email).first()
     
     if check_name or check_email:
-        return jsonify({"Error": "The User Already exist"})
+        return jsonify({"Error": "The User Already exist"}), 406
     else: 
+        #create a new user 
         new_user = User(name=name,email=email,password=password,is_admin=is_admin)
         
         #call the function 
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({"Success": "User added Successfully"})
+        return jsonify({"Success": "User added Successfully"}), 201
     
     
 #Update a User  
-@user_bp.route('/users/<user_id>', methods = ["PATCH"])
-def update_user_id(id):
-    user= User.query.get(id)
+@user_bp.route('/users/<user_id>', methods = ["PATCH","PUT"])
+def update_user_id(user_id):
+    # user will be none if no user is found
+    # get all the Users 
+    user= User.query.get(user_id)
     
-    if user and user.id:
-        # get the data
+    # check if the user exist, 
+    if user:
+          #if the data is not provided issues the data
         data = request.get_json()
-        name = data.get("name")
-        email = data.get("email")
-        password = data.get("password")
-        is_admin= data.get("is_admin")
+        name = data.get("name", user.name)
+        email = data.get("email", user.email)
+        password = data.get("password", user.password)
+        is_admin= data.get("is_admin", user.is_admin)
         
-        check_name = User.query.get(name)
-        check_email = User.query.get(name)
     
-    if check_name or check_email:
-        return jsonify({"Error": "The User Already exist"})
-    else: 
-        new_user = User(name=name,email=email,password=password,is_admin=is_admin)
+    # check for existing name or email if they already exist
+        check_name = User.query.filter_by(name=name and id!=user_id).first()
+        check_email = User.query.filter_by(email=email and id!=user_id).first()
+    
+    #if the user with name or email exist 
+        if check_name or check_email:
+            return jsonify({"Error": "A user with this name or email already exist. Use a different name or email"}),406
+        else: 
+          #if no conflict update 
+            user.name = name 
+            user.email = email
+            user.password = password
+            user.is_admin = is_admin
         
-        #call the function 
-        db.session.add(new_user)
-        db.session.commit()
-        return jsonify({"Success": "User added Successfully"})
+            #commit the function 
+            db.session.commit()
+            return jsonify({"Success": f"User with {user_id} was updated successfully"}),200
+    else:
+        return jsonify({"Error": "The name or email of User not found. Kindly Create a User "}), 406
     
     
-#DELETE USER; 
-@user_bp.route('/users/<int:user_id>',methods=['DELETE'])        
+#Delete User 
+@user_bp.route('/users/<int:user_id>' ,methods=['DELETE'])        
 def delete_user(user_id):
-    #get the users
+    #get the all the users
     user = User.query.get(user_id)
     if user:
         db.session.delete(user)
         db.session.commit()
-        return jsonify({"Success":"User Deleted Successfully"})
+        return jsonify({"Success":"User deleted Successfully"})
     else:
-         return jsonify({"Error": "User does not exist"})
+         return jsonify({"Error": "User does not exist"}), 406
       
         
+    
