@@ -3,6 +3,7 @@ from sqlalchemy import MetaData, Enum
 from sqlalchemy.orm import validates 
 from datetime import datetime
 
+
 metadata = MetaData()
 
 db = SQLAlchemy(metadata=metadata)
