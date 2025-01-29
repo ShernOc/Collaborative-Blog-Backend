@@ -99,16 +99,16 @@ def update_blog_id(blog_id):
     
         
     #check if the data is the same/identical no change was made 
-    if title==blog.title and content==blog.content and  is_published==blog.is_published:
+    if title==blog.title and content==blog.content and is_published==blog.is_published:
         return jsonify({"Error": "Blog full data is in the database, update something else"}), 400
              
     # check for existing title or blog_id if they already exist
-    check_title = Blog.query.filter_by(title=title and id!=blog_id).first()
-    check_user = Blog.query.filter_by(user_id=user_id and id!=blog_id).first()
+    check_title = Blog.query.filter(Blog.title==title and Blog.id!=blog_id).first()
+    check_content= Blog.query.filter(Blog.content==content and Blog.id!=blog_id).first()
         
     #if the blog with title or user-id exist 
-    if check_title or check_user:
-        return jsonify({"Error": "A blog with this title or blog_id already exist. Use a different title or blog id"}),409
+    if check_title or check_content:
+        return jsonify({"Error":"A blog with this title and already exist. Use a different title or blog content"}),409
     
     else: 
         #if no conflict update 
@@ -119,7 +119,7 @@ def update_blog_id(blog_id):
             
         #commit the function 
         db.session.commit()
-        return jsonify({"Success": f"Blog with id of {blog_id} was updated successfully"}),200
+        return jsonify({"Success":f"Blog with id of {blog_id} was updated successfully"}),200
     
     # Hash the password
   
@@ -135,6 +135,7 @@ def delete_blog(blog_id):
     else:
          return jsonify({"Error": "The blog does not exist"}), 406
      
+    # Done by the developer
 # #Delete all blogs
 # @blog_bp.route('/blogs' ,methods=['DELETE'])        
 # def delete_all_blog():

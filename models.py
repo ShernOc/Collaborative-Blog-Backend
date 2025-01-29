@@ -47,7 +47,7 @@ class Blog(db.Model):
     
     id = db.Column(db.Integer, primary_key = True)
     title = db.Column(db.String(100), nullable = False )
-    content = db.Column(db.String(256), nullable = False)
+    content = db.Column(db.String(300), nullable = False)
     user_id= db.Column(db.Integer, db.ForeignKey("users.id"), nullable = False)
     # date = db.Column(db.DateTime, default = datetime.day)
     is_published = db.Column(db.Boolean, nullable = False)

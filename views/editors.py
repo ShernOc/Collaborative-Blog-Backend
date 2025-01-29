@@ -48,7 +48,7 @@ def get_editors_id(id):
         return jsonify({"Error": "Editor does not exist"}), 404
     
 #Post/create an editor 
-@editor_bp.route('/editors' ,methods = ['POST'])
+@editor_bp.route('/editors',methods = ['POST'])
 def post_editor():
     #get all the data 
     data = request.get_json()
@@ -77,7 +77,7 @@ def update_editor_id(editor_id):
     
     # check if the edit exist, 
     if not editor:
-        return jsonify({"Error": "Editor not found,wrong id used, Create another editor"})
+        return jsonify({"Error": "Editor not found,wrong id used, Create another editor"}),404
     
     #if the data is not provided issues the data
     data = request.get_json()
@@ -85,17 +85,16 @@ def update_editor_id(editor_id):
     user_id = data.get("user_id",editor.user_id)
     role = data.get("role",editor.role)
     
-    if blog_id ==editor.blog_id and user_id==editor.user_id and role == editor.role: 
-        return jonifdf 
-    ({"Error": "The editor with the same credential already exist"})
+    if blog_id==editor.blog_id and user_id==editor.user_id and role == editor.role: 
+        return jsonify({"Error": "The editor with the same credential already exist"}), 406
     
-# check for existing user_id or role if they already exist
-    check_user = Editors.query.filter_by(user_id=user_id and id!=editor_id).first()
-    check_role = Editors.query.filter_by(role = role and id!=editor_id).first()
+# check for existing blog_id or user_id if they already exist
+    check_user= Editors.query.filter(Editors.user_id==user_id and Editors.id!=editor_id).first()
+    check_blog =Editors.query.filter(Editors.blog_id == blog_id and Editors.id!=editor_id).first()
 
 #if the editor with a  user or role exist 
-    if check_user or check_role:
-        return jsonify({"Error": "The editor with this id or role already exist. Try a different role, or user"}),406
+    if check_user or check_blog:
+        return jsonify({"Error": "The editor with the blog_id, and user_id already exist. Try a different role, or user"}),406
     else: 
     #if no conflict update 
         editor.blog_id = blog_id 

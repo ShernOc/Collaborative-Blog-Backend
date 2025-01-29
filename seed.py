@@ -44,7 +44,7 @@ def blog_data():
                 for _ in range(num_records):
                     blog=Blog(
                     title=fake.sentence(nb_words=5),       
-                    content=fake.text(max_nb_chars=50),
+                    content=fake.text(),
                     user_id=fake.random_element(users),
                     # date=fake.date_time_this_year().strftime("%d/%m/%Y"),
                     is_published=fake.boolean()
