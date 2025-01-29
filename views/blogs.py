@@ -64,7 +64,7 @@ def post_blog_id():
     user_id = data["user_id"]
     is_published= data["is_published"]
     
-    #Check name or email of the blog exist and if error message. 
+    #Check title or user_id of the blog exist and if error message. 
     check_title = Blog.query.filter_by(title=title).first()
     check_user = Blog.query.filter_by(user_id=user_id).first()
     
@@ -78,58 +78,70 @@ def post_blog_id():
         db.session.add(new_blog)
         db.session.commit()
         return jsonify({"Success": "The blog added successfully"}), 201
-    
-    
+      
 #Update a Blog  
-@blog_bp.route('/blogs/<user_id>', methods = ["PATCH","PUT"])
-def update_blog_id(user_id):
+@blog_bp.route('/blogs/<blog_id>', methods = ["PATCH","PUT"])
+def update_blog_id(blog_id):
     # blogs will be none if no blog is found
     # get all the Users 
-    blog= Blog.query.get(user_id)
+    blog= Blog.query.get(blog_id)
     
     # check if the user exist, 
-    if blog:
-          #if the data is not provided issues the data
-        data = request.get_json()
-        title = data.get("title", blog.name)
-        content = data.get("content", blog.content)
-        user_id = data.get("user_id", blog.user_id)
-        is_published= data.get("is_admin", blog.is_published)
+    if not blog:
+        return jsonify({"Error": "Blog not found. Please check the ID."}), 404
+    
+    #if the data is not provided issues the data
+    data = request.get_json()
+    title = data.get("title", blog.title)
+    content = data.get("content", blog.content)
+    user_id = data.get("user_id", blog.user_id)
+    is_published= data.get("is_published", blog.is_published)      
+    
         
-    
-    # check for existing name or email if they already exist
-        check_title = Blog.query.filter_by(title=title and id!=user_id).first()
-        check_user = Blog.query.filter_by(user_id=user_id and id!=user_id).first()
-    
+    #check if the data is the same/identical no change was made 
+    if title==blog.title and content==blog.content and  is_published==blog.is_published:
+        return jsonify({"Error": "Blog full data is in the database, update something else"}), 400
+             
+    # check for existing title or blog_id if they already exist
+    check_title = Blog.query.filter_by(title=title and id!=blog_id).first()
+    check_user = Blog.query.filter_by(user_id=user_id and id!=blog_id).first()
+        
     #if the blog with title or user-id exist 
-        if check_title or check_user:
-            return jsonify({"Error": "A blog with this title or User Id already exist. Use a different title or id"}),406
-        else: 
-          #if no conflict update 
-            blog.title = title
-            blog.content = content
-            blog.user_id = user_id
-            blog.is_published = is_published 
-        
-        
-            #commit the function 
-            db.session.commit()
-            return jsonify({"Success": f"Blog with {user_id} was updated successfully"}),200
-    else:
-        return jsonify({"Error": "The title or user of the blog is not found. Kindly Create a User "}), 406
+    if check_title or check_user:
+        return jsonify({"Error": "A blog with this title or blog_id already exist. Use a different title or blog id"}),409
     
+    else: 
+        #if no conflict update 
+        blog.title = title
+        blog.content = content
+        blog.user_id = user_id    
+        blog.is_published = is_published 
+            
+        #commit the function 
+        db.session.commit()
+        return jsonify({"Success": f"Blog with id of {blog_id} was updated successfully"}),200
     
-#Delete blog
-@blog_bp.route('/blogs/<int:user_id>' ,methods=['DELETE'])        
-def delete_blog(user_id):
+    # Hash the password
+  
+# Delete blog
+@blog_bp.route('/blogs/<int:blog_id>',methods=['DELETE'])        
+def delete_blog(blog_id):
     #get the all the blogs
-    blog = Blog.query.get(user_id)
+    blog = Blog.query.get(blog_id)
     if blog:
         db.session.delete(blog)
         db.session.commit()
         return jsonify({"Success":"A Blog has been deleted Successfully"})
     else:
          return jsonify({"Error": "The blog does not exist"}), 406
+     
+# #Delete all blogs
+# @blog_bp.route('/blogs' ,methods=['DELETE'])        
+# def delete_all_blog():
+#     #get the all the blogs
+#     blog = Blog.query.delete()
+#     db.session.commit()
+#     return jsonify({"Success":"Blogs have been deleted successfully"})
 
 
       

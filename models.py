@@ -8,7 +8,7 @@ from datetime import datetime
 metadata = MetaData()
 
 db = SQLAlchemy(metadata=metadata)
-ROLE_ENUM = ('editor', 'reviewer')
+ROLE_ENUM = ('editor', 'viewer')
 
 #Concept: 
 # A user can write many blogs
@@ -26,12 +26,13 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable = False)
     is_admin = db.Column(db.Boolean, default = False)
     
-    #A user write many blogs
+    #A user write many blogs: Many to many via the editors
     #relationships
+    #cascade: deletes a user with its blog. 
     blogs = db.relationship("Blog", secondary = "editors",
     back_populates = "users", lazy =True)
     editors = db.relationship("Editors", back_populates="users", lazy=True)
-    comments =db.relationship("Comment", back_populates = "users", lazy = True)
+    comments =db.relationship("Comment", back_populates = "users", cascade="all, delete-orphan")
     
 # email validation 
 @validates("email")
@@ -53,8 +54,10 @@ class Blog(db.Model):
     
     # relationships
     users= db.relationship("User", secondary = "editors", back_populates = "blogs", lazy = True,)
-    editors = db.relationship("Editors", back_populates="blogs", lazy=True)
-    comments = db.relationship("Comment", back_populates="blogs", lazy=True)
+    
+    editors = db.relationship("Editors", back_populates="blogs", lazy=True, cascade = "all, delete-orphan")
+    
+    comments = db.relationship("Comment", back_populates="blogs", cascade = "all, delete-orphan")
 
 
 # Editors Table #Association table for many to many between the user and blog
@@ -78,7 +81,7 @@ class Comment(db.Model):
     #database
     id = db.Column(db.Integer, primary_key = True)
     # date = db.Column(db.DateTime, default =datetime.day)
-    content = db.Column(db.String(120), nullable = True)
+    content = db.Column(db.String(120), nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable = False)
     blog_id = db.Column(db.Integer,db.ForeignKey("blogs.id"), nullable = False)
     
@@ -92,10 +95,7 @@ class TokenBlocklist(db.Model):
         jti = db.Column(db.String(36), nullable=False, index=True)
         created_at = db.Column(db.DateTime, nullable=False)
 
-    
-    
-    
-    
+ 
 # #Blog
 # #Collaboration 
 # #Comment 

@@ -9,7 +9,7 @@ user_bp = Blueprint("user_bp", __name__)
 #get all users
 @user_bp.route('/users', methods = ['GET'])
 # @jwt_required()
-def get_user():
+def get_all_users():
     # current_user_id = get_jwt_identity()
     #get all the users 
     users = User.query.all()
@@ -85,7 +85,7 @@ def post_user_id():
         #call the function 
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({"Success": "User added Successfully"}), 201
+        return jsonify({"Success": "User added successfully"}), 201
     
     
 #Update a User  
@@ -96,24 +96,29 @@ def update_user_id(user_id):
     user= User.query.get(user_id)
     
     # check if the user exist, 
-    if user:
-          #if the data is not provided issues the data
-        data = request.get_json()
-        name = data.get("name", user.name)
-        email = data.get("email", user.email)
-        password = data.get("password", user.password)
-        is_admin= data.get("is_admin", user.is_admin)
+    if not user:
+        return jsonify({"Error": "Use not found based on the id. Choose an existing user-id"}), 404
+    
+ #if the data is not provided issues the data
+    data = request.get_json()
+    name = data.get("name", user.name)
+    email = data.get("email", user.email)
+    password = data.get("password", user.password)
+    is_admin= data.get("is_admin", user.is_admin)    
+      
+    #check if the data is the same/identical no change was made 
+    if name==user.name and email==user.email and  is_admin ==user.is_admin:
+        return jsonify({"Error": "User full data is in the database, update something else"}), 400
+    
+    # check for existing name or email if they already exist in another user 
+    check_name = User.query.filter(User.name==name ,User.id!=user_id).first()
+    check_email= User.query.filter(User.email==email , User.id!=user_id).first()
         
-    
-    # check for existing name or email if they already exist
-        check_name = User.query.filter_by(name=name and id!=user_id).first()
-        check_email = User.query.filter_by(email=email and id!=user_id).first()
-    
     #if the user with name or email exist 
-        if check_name or check_email:
-            return jsonify({"Error": "A user with this name or email already exist. Use a different name or email"}),406
-        else: 
-          #if no conflict update 
+    if check_name and check_email:
+        return jsonify({"Error": "A user with this name or email already exist. Update a different name or email or something else"}),406
+    else: 
+        #if no conflict update data
             user.name = name 
             user.email = email
             user.password = password
@@ -121,13 +126,15 @@ def update_user_id(user_id):
         
             #commit the function 
             db.session.commit()
-            return jsonify({"Success": f"User with {user_id} was updated successfully"}),200
-    else:
-        return jsonify({"Error": "The name or email of User not found. Kindly Create a User "}), 406
+            return jsonify({"Success": f"User with  ID {user_id} was updated successfully"}),200
+        
+        ## Hash the password if a new one is provided
+    # if password:
+        # user.password = generate_password_hash(password)
+  
     
-    
-#Delete User 
-@user_bp.route('/users/<int:user_id>' ,methods=['DELETE'])        
+#Delete User   
+@user_bp.route('/users/<int:user_id>' ,methods=['DELETE'])      
 def delete_user(user_id):
     #get the all the users
     user = User.query.get(user_id)
@@ -137,6 +144,17 @@ def delete_user(user_id):
         return jsonify({"Success":"User deleted Successfully"})
     else:
          return jsonify({"Error": "User does not exist"}), 406
+     
+# # Delete All users / Can be done by the admin 
+
+# @user_bp.route('/users', methods=['DELETE'])      
+# def delete_all_user():
+#     #get the all the users
+#     user = User.query.delete()
+#     db.session.commit()
+#     return jsonify({"Success":"Users deleted successfully"}), 201
+
+
       
         
     
