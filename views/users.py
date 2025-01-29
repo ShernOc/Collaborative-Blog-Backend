@@ -8,13 +8,13 @@ user_bp = Blueprint("user_bp", __name__)
 
 #get all users
 @user_bp.route('/users', methods = ['GET'])
-# @jwt_required()
+@jwt_required()
 def get_all_users():
-    # current_user_id = get_jwt_identity()
-    #get all the users 
-    users = User.query.all()
+    #Authentication 
+    current_user_id = get_jwt_identity()
+    # get all the users 
+    users = User.query.filter_by(user_id = current_user_id)
     
-    # users = User.query.filter_by(user_id = current_user_id)
     #create an empty list to store the users 
     user_list= []
     
@@ -29,10 +29,10 @@ def get_all_users():
 
 # Get users by id 
 @user_bp.route('/users/<int:id>', methods = ['GET'])
-# @jwt_required()
+@jwt_required()
 def get_user_id(id):
-    # current_user_id = get_jwt_identity()
-    user = User.query.get(id)
+    current_user_id = get_jwt_identity()
+    user = User.query.get(id=user_id, user_id = current_user_id)
     # users = User.query.filter_by(user_id = current_user_id)
     if user:
         return jsonify({  
@@ -56,7 +56,7 @@ def get_user_id(id):
                     "content":comments.content,
                 } for comments in user.comments
             ]
-           
+          
         })
     else: 
         return jsonify({"Error": "User does not exist"})
@@ -90,13 +90,15 @@ def post_user_id():
     
 #Update a User  
 @user_bp.route('/users/<user_id>', methods = ["PATCH","PUT"])
+@jwt_required()
 def update_user_id(user_id):
+    current_user_id = get_jwt_identity()
     # user will be none if no user is found
     # get all the Users 
     user= User.query.get(user_id)
     
     # check if the user exist, 
-    if not user:
+    if not user and user.user_id ==current_user_id:
         return jsonify({"Error": "Use not found based on the id. Choose an existing user-id"}), 404
     
  #if the data is not provided issues the data
@@ -134,10 +136,12 @@ def update_user_id(user_id):
   
     
 #Delete User   
-@user_bp.route('/users/<int:user_id>' ,methods=['DELETE'])      
+@user_bp.route('/users/<int:user_id>' ,methods=['DELETE'])  
+@jwt_required()    
 def delete_user(user_id):
+    current_user_id = get_jwt_identity()
     #get the all the users
-    user = User.query.get(user_id)
+    user = User.query.filter_by(id=user_id, user_id=current_user_id)
     if user:
         db.session.delete(user)
         db.session.commit()
@@ -147,8 +151,10 @@ def delete_user(user_id):
      
 # # Delete All users / Can be done by the admin 
 
-# @user_bp.route('/users', methods=['DELETE'])      
+# @user_bp.route('/users', methods=['DELETE']) 
+# @jwt_required()      
 # def delete_all_user():
+#     current_user_id = get_jwt_identity()
 #     #get the all the users
 #     user = User.query.delete()
 #     db.session.commit()

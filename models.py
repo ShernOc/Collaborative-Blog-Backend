@@ -96,16 +96,6 @@ class TokenBlocklist(db.Model):
         created_at = db.Column(db.DateTime, nullable=False)
 
  
-# #Blog
-# #Collaboration 
-# #Comment 
-# #hint: if not saved local storage: save the project in the local storage 
-# # Collaborate on Blog: As a user, I want to invite other users to collaborate on my blog post.
-# # A User can write a Comment of a Blog 
-# #Being able to 
-# # A User being able to publish the blog 
-
-# print("life is good")
 
 
 
