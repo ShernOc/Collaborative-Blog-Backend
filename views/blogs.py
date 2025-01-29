@@ -4,7 +4,6 @@ from werkzeug.security import generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 #Blue print 
-
 blog_bp = Blueprint("blog_bp", __name__)
 
 @blog_bp.route('/blogs', methods = ['GET'])
@@ -15,7 +14,7 @@ def get_blogs():
     blogs = Blog.query.all()
     
     # blogs = Blog.query.filter_by(user_id = current_user_id)
-    #create an empty list to store the users 
+    #create an empty list to store the blogs
     blog_list= []
     
     for blog in blogs:
@@ -34,7 +33,7 @@ def get_blogs():
 def get_blog_id(id):
     # current_user_id = get_jwt_identity()
     blog = Blog.query.get(id)
-    # users = User.query.filter_by(user_id = current_user_id)
+    # blogs = Blog.query.filter_by(user_id = current_user_id)
     if blog:
         return jsonify({  
         "id":blog.id,
@@ -81,10 +80,10 @@ def post_blog_id():
         return jsonify({"Success": "The blog added successfully"}), 201
     
     
-#Update a User  
+#Update a Blog  
 @blog_bp.route('/blogs/<user_id>', methods = ["PATCH","PUT"])
 def update_blog_id(user_id):
-    # user will be none if no user is found
+    # blogs will be none if no blog is found
     # get all the Users 
     blog= Blog.query.get(user_id)
     
@@ -102,9 +101,9 @@ def update_blog_id(user_id):
         check_title = Blog.query.filter_by(title=title and id!=user_id).first()
         check_user = Blog.query.filter_by(user_id=user_id and id!=user_id).first()
     
-    #if the user with name or email exist 
+    #if the blog with title or user-id exist 
         if check_title or check_user:
-            return jsonify({"Error": "A blog with this title or User ID already exist. Use a different title or user-id"}),406
+            return jsonify({"Error": "A blog with this title or User Id already exist. Use a different title or id"}),406
         else: 
           #if no conflict update 
             blog.title = title
@@ -120,10 +119,10 @@ def update_blog_id(user_id):
         return jsonify({"Error": "The title or user of the blog is not found. Kindly Create a User "}), 406
     
     
-#Delete User 
+#Delete blog
 @blog_bp.route('/blogs/<int:user_id>' ,methods=['DELETE'])        
 def delete_blog(user_id):
-    #get the all the users
+    #get the all the blogs
     blog = Blog.query.get(user_id)
     if blog:
         db.session.delete(blog)
@@ -131,4 +130,6 @@ def delete_blog(user_id):
         return jsonify({"Success":"A Blog has been deleted Successfully"})
     else:
          return jsonify({"Error": "The blog does not exist"}), 406
+
+
       
