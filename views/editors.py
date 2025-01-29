@@ -8,10 +8,11 @@ editor_bp = Blueprint("editor_bp", __name__)
 
 #fetch/get the editors
 @editor_bp.route('/editors', methods = ['GET'])
-
+@jwt_required()
 def get_all_editors():
+    current_user_id=get_jwt_identity()
     # get all editors
-    editors = Editors.query.all()
+    editors = Editors.query.filter_by(user_id=current_user_id)
     #create an empty list 
     editors_list = []
     
@@ -25,12 +26,12 @@ def get_all_editors():
     return jsonify({"Editors": editors_list})
 
 # Get editor by id 
-@editor_bp.route('/editors/<int:id>', methods = ['GET'])
-# @jwt_required()
-def get_editors_id(id):
-    # current_user_id = get_jwt_identity()
-    edit = Editors.query.get(id)
-    # edit = Editor.query.filter_by(user_id = current_user_id)
+@editor_bp.route('/editors/<int:editor_id>', methods = ['GET'])
+@jwt_required()
+def get_editors_id(editor_id):
+    current_user_id = get_jwt_identity()
+    
+    edit = Editors.query.filter_by(id = editor_id, user_id = current_user_id).first()
     if edit:
         return jsonify({  
         "id":edit.id,
@@ -48,21 +49,22 @@ def get_editors_id(id):
         return jsonify({"Error": "Editor does not exist"}), 404
     
 #Post/create an editor 
-@editor_bp.route('/editors',methods = ['POST'])
+@editor_bp.route('/editors',methods =['POST'])
+@jwt_required()
 def post_editor():
+    current_user_id=get_jwt_identity()
     #get all the data 
     data = request.get_json()
     blog_id = data['blog_id']
-    user_id = data['user_id']
     role= data['role']
     
     # check if the editor_id  exist 
-    check_editor = Editors.query.filter_by(blog_id = blog_id, user_id = user_id).first()
+    check_editor = Editors.query.filter_by(blog_id = blog_id, user_id=current_user_id).first()
     
     if check_editor: 
         return jsonify({"Error":"The editor already exist"}), 400
     else: 
-        new_edits = Editors(blog_id = blog_id, user_id = user_id, role=role)
+        new_edits = Editors(blog_id = blog_id, user_id = current_user_id, role=role)
         db.session.add(new_edits)
         db.session.commit()
         return jsonify({"Success":"Editor added successfully"}), 201
@@ -70,14 +72,16 @@ def post_editor():
         
 #Update a editor based on the id
 @editor_bp.route('/editors/<editor_id>', methods = ["PATCH","PUT"])
+@jwt_required()
 def update_editor_id(editor_id):
+    current_user_id=get_jwt_identity()
     # None will be the output if no editor on the database 
     # get all the Editors 
     editor= Editors.query.get(editor_id)
     
     # check if the edit exist, 
-    if not editor:
-        return jsonify({"Error": "Editor not found,wrong id used, Create another editor"}),404
+    if not editor or editor.user_id!= current_user_id:
+        return jsonify({"Error": "Editor not found, not authorized "}),404
     
     #if the data is not provided issues the data
     data = request.get_json()
@@ -105,13 +109,14 @@ def update_editor_id(editor_id):
         db.session.commit()
         return jsonify({"Success": f"Editor with {user_id} is updated successfully"}),200
     
-    # Password Hash
     
 #Delete Editor   
-@editor_bp.route('/editors/<int:user_id>' ,methods=['DELETE'])      
-def delete_editors(user_id):
+@editor_bp.route('/editors/<int:editor_id>' ,methods=['DELETE'])      
+@jwt_required()
+def delete_editors(editor_id):
+    current_user_id=get_jwt_identity()
     #get the all the users
-    editor= Editors.query.get(user_id)
+    editor= Editors.query.filter_by(id=editor_id, user_id=current_user_id).first()
     if editor:
         db.session.delete(editor)
         db.session.commit()

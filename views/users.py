@@ -28,9 +28,9 @@ def get_all_users():
     return jsonify({"All Users":user_list})
 
 # Get users by id 
-@user_bp.route('/users/<int:id>', methods = ['GET'])
+@user_bp.route('/users/<int:user_id>', methods = ['GET'])
 @jwt_required()
-def get_user_id(id):
+def get_user_id(user_id):
     current_user_id = get_jwt_identity()
     user = User.query.get(id=user_id, user_id = current_user_id)
     # users = User.query.filter_by(user_id = current_user_id)
@@ -64,7 +64,9 @@ def get_user_id(id):
 
 #Create a User  
 @user_bp.route('/users', methods = ["POST"])
+# @jwt_required()
 def post_user_id():
+    # current_user_id=get_jwt_identity()
     # get the data
     data = request.get_json()
     name = data["name"]
@@ -87,7 +89,6 @@ def post_user_id():
         db.session.commit()
         return jsonify({"Success": "User added successfully"}), 201
     
-    
 #Update a User  
 @user_bp.route('/users/<user_id>', methods = ["PATCH","PUT"])
 @jwt_required()
@@ -98,7 +99,7 @@ def update_user_id(user_id):
     user= User.query.get(user_id)
     
     # check if the user exist, 
-    if not user and user.user_id ==current_user_id:
+    if not user or user.user_id !=current_user_id:
         return jsonify({"Error": "Use not found based on the id. Choose an existing user-id"}), 404
     
  #if the data is not provided issues the data
@@ -141,7 +142,7 @@ def update_user_id(user_id):
 def delete_user(user_id):
     current_user_id = get_jwt_identity()
     #get the all the users
-    user = User.query.filter_by(id=user_id, user_id=current_user_id)
+    user = User.query.filter_by(id=user_id, user_id=current_user_id).first()
     if user:
         db.session.delete(user)
         db.session.commit()

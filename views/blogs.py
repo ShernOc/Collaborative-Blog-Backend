@@ -7,13 +7,12 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 blog_bp = Blueprint("blog_bp", __name__)
 
 @blog_bp.route('/blogs', methods = ['GET'])
-# @jwt_required()
+@jwt_required()
 def get_blogs():
-    # current_user_id = get_jwt_identity()
+    current_user_id = get_jwt_identity()
     #get all the users 
-    blogs = Blog.query.all()
+    blogs = Blog.query.filter_by(user_id = current_user_id)
     
-    # blogs = Blog.query.filter_by(user_id = current_user_id)
     #create an empty list to store the blogs
     blog_list= []
     
@@ -28,12 +27,12 @@ def get_blogs():
     return jsonify({"All blogs":blog_list})
 
 # Get blogs by id 
-@blog_bp.route('/blogs/<int:id>', methods = ['GET'])
-# @jwt_required()
-def get_blog_id(id):
-    # current_user_id = get_jwt_identity()
-    blog = Blog.query.get(id)
-    # blogs = Blog.query.filter_by(user_id = current_user_id)
+@blog_bp.route('/blogs/<int:blog_id>', methods = ['GET'])
+@jwt_required()
+def get_blog_id(blog_id):
+    current_user_id = get_jwt_identity()
+    
+    blog = Blog.query.filter_by(id=blog_id, user_id = current_user_id).first()
     if blog:
         return jsonify({  
         "id":blog.id,
@@ -56,23 +55,24 @@ def get_blog_id(id):
 
 #Create a blog
 @blog_bp.route('/blogs', methods = ["POST"])
+@jwt_required()
 def post_blog_id():
+    current_user_id = get_jwt_identity()
     # get the data
     data = request.get_json()
     title = data["title"]
     content = data["content"]
-    user_id = data["user_id"]
     is_published= data["is_published"]
     
     #Check title or user_id of the blog exist and if error message. 
     check_title = Blog.query.filter_by(title=title).first()
-    check_user = Blog.query.filter_by(user_id=user_id).first()
+    check_user = Blog.query.filter_by(user_id=current_user_id).first()
     
     if check_title or check_user:
         return jsonify({"Error": "The blog already posted"}), 406
     else: 
         #create a new blog
-        new_blog = Blog(title=title,user_id=user_id,content=content, is_published=is_published)
+        new_blog = Blog(title=title,user_id=current_user_id,content=content, is_published=is_published)
         
         #call the function 
         db.session.add(new_blog)
@@ -81,20 +81,21 @@ def post_blog_id():
       
 #Update a Blog  
 @blog_bp.route('/blogs/<blog_id>', methods = ["PATCH","PUT"])
+@jwt_required()
 def update_blog_id(blog_id):
+    current_user_id = get_jwt_identity()
     # blogs will be none if no blog is found
     # get all the Users 
     blog= Blog.query.get(blog_id)
     
     # check if the user exist, 
-    if not blog:
+    if not blog or blog.user_id !=current_user_id:
         return jsonify({"Error": "Blog not found. Please check the ID."}), 404
     
     #if the data is not provided issues the data
     data = request.get_json()
     title = data.get("title", blog.title)
     content = data.get("content", blog.content)
-    user_id = data.get("user_id", blog.user_id)
     is_published= data.get("is_published", blog.is_published)      
     
         
@@ -114,7 +115,7 @@ def update_blog_id(blog_id):
         #if no conflict update 
         blog.title = title
         blog.content = content
-        blog.user_id = user_id    
+        blog.user_id = current_user_id  
         blog.is_published = is_published 
             
         #commit the function 
@@ -124,10 +125,12 @@ def update_blog_id(blog_id):
     # Hash the password
   
 # Delete blog
-@blog_bp.route('/blogs/<int:blog_id>',methods=['DELETE'])        
+@blog_bp.route('/blogs/<int:blog_id>',methods=['DELETE']) 
+@jwt_required()
 def delete_blog(blog_id):
+    current_user_id = get_jwt_identity()
     #get the all the blogs
-    blog = Blog.query.get(blog_id)
+    blog = Blog.query.filter_by(id=blog_id, user_id = current_user_id).first()
     if blog:
         db.session.delete(blog)
         db.session.commit()
