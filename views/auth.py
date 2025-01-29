@@ -21,13 +21,11 @@ def login():
     
     if user and check_password_hash(user.password,password):
         access_token = create_access_token(identity=user.id)
-        
         return jsonify({"access_token":access_token}), 200
         
     # pass an error 
     else: 
-        return jsonify({"Error":"User does not exit or wrong token"}), 404
-    
+        return jsonify({"Error":"Email/Password is incorrect"}), 404
     
 #get the current user functions
 @auth_bp.route('/current_user', methods = ['GET'])

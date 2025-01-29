@@ -68,8 +68,7 @@ def post_editor():
         db.session.add(new_edits)
         db.session.commit()
         return jsonify({"Success":"Editor added successfully"}), 201
-        
-        
+           
 #Update a editor based on the id
 @editor_bp.route('/editors/<editor_id>', methods = ["PATCH","PUT"])
 @jwt_required()

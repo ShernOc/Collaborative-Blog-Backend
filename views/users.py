@@ -8,13 +8,11 @@ user_bp = Blueprint("user_bp", __name__)
 
 #get all users
 @user_bp.route('/users', methods = ['GET'])
-@jwt_required()
 def get_all_users():
     #Authentication 
-    current_user_id = get_jwt_identity()
     # get all the users 
-    users = User.query.filter_by(user_id = current_user_id)
-    
+    users = User.query.all()
+
     #create an empty list to store the users 
     user_list= []
     
@@ -29,10 +27,8 @@ def get_all_users():
 
 # Get users by id 
 @user_bp.route('/users/<int:user_id>', methods = ['GET'])
-@jwt_required()
 def get_user_id(user_id):
-    current_user_id = get_jwt_identity()
-    user = User.query.get(id=user_id, user_id = current_user_id)
+    user = User.query.get(user_id)
     # users = User.query.filter_by(user_id = current_user_id)
     if user:
         return jsonify({  
@@ -71,7 +67,7 @@ def post_user_id():
     data = request.get_json()
     name = data["name"]
     email = data["email"]
-    password = data["password"]
+    password =generate_password_hash(data["password"])
     is_admin= data["is_admin"]
     
     #Check name or email of the user exist and if error message. 
@@ -91,15 +87,14 @@ def post_user_id():
     
 #Update a User  
 @user_bp.route('/users/<user_id>', methods = ["PATCH","PUT"])
-@jwt_required()
 def update_user_id(user_id):
-    current_user_id = get_jwt_identity()
+    
     # user will be none if no user is found
     # get all the Users 
     user= User.query.get(user_id)
     
     # check if the user exist, 
-    if not user or user.user_id !=current_user_id:
+    if not user:
         return jsonify({"Error": "Use not found based on the id. Choose an existing user-id"}), 404
     
  #if the data is not provided issues the data
@@ -137,12 +132,10 @@ def update_user_id(user_id):
   
     
 #Delete User   
-@user_bp.route('/users/<int:user_id>' ,methods=['DELETE'])  
-@jwt_required()    
+@user_bp.route('/users/<int:user_id>' ,methods=['DELETE']) 
 def delete_user(user_id):
-    current_user_id = get_jwt_identity()
     #get the all the users
-    user = User.query.filter_by(id=user_id, user_id=current_user_id).first()
+    user = User.query.get(user_id)
     if user:
         db.session.delete(user)
         db.session.commit()
