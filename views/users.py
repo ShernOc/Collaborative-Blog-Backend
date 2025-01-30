@@ -56,8 +56,7 @@ def get_user_id(user_id):
         })
     else: 
         return jsonify({"Error": "User does not exist"})
-
-
+    
 #Create a User  
 @user_bp.route('/users', methods = ["POST"])
 # @jwt_required()
@@ -129,7 +128,6 @@ def update_user_id(user_id):
         ## Hash the password if a new one is provided
     # if password:
         # user.password = generate_password_hash(password)
-  
     
 #Delete User   
 @user_bp.route('/users/<int:user_id>' ,methods=['DELETE']) 
