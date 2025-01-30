@@ -31,7 +31,7 @@ def get_blogs():
 @jwt_required()
 def get_blog_id(blog_id):
     current_user_id = get_jwt_identity()
-    
+
     blog = Blog.query.filter_by(id=blog_id, user_id = current_user_id).first()
     if blog:
         return jsonify({  

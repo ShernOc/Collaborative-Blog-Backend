@@ -8,21 +8,21 @@ from datetime import datetime,timezone
 auth_bp= Blueprint('auth_bp', __name__)
 
 #Login User 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login',methods=['POST'])
 #get the data of user
 def login():
     #None is the email, or password does not exist
     data = request.get_json()
-    email = data.get("email", None )
-    password = data.get("password", None)
+    email=data.get("email",None )
+    password=data.get("password",None)
     
     #check if the user with the email exist (if)
-    user = User.query.filter_by(email=email).first()
+    user=User.query.filter_by(email=email).first()
     
     if user and check_password_hash(user.password,password):
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
+        print("Generated Token:", access_token)  # Debugging Line
         return jsonify({"access_token":access_token}), 200
-        
     # pass an error 
     else: 
         return jsonify({"Error":"Email/Password is incorrect"}), 404

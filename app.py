@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from models import db
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail,Message
+from datetime import timedelta
 from flask_cors import CORS
 import os
 
@@ -33,14 +34,13 @@ app.register_blueprint(auth_bp)
 def index(): 
     return jsonify ({"Success" :"Collaborative Blogging Platform"})
 
-# #Authentication / jw_t 
-# app.config["JWT_SECRET_KEY"] = "Sherlyne-23456"  # Change this!
-# #Toke Expire in 2 hours 
-# app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2)
+#Authentication / jw_t 
+app.config["JWT_SECRET_KEY"]= os.getenv("JWT_SECRET_KEY","Sherlyne-23456")
+#Toke Expire in 2 hours 
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2)
 
-# jwt = JWTManager(app)
-# jwt.init_app(app)
-
+jwt=JWTManager(app)
+jwt.init_app(app)
 
 
 # # Mail Credentials 

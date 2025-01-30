@@ -23,7 +23,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100), nullable = False)
     email = db.Column(db.String(128), nullable = False)
-    password = db.Column(db.String(128), nullable = False)
+    password = db.Column(db.String(512), nullable = False)
     is_admin = db.Column(db.Boolean, default = False)
     
     #A user write many blogs: Many to many via the editors
@@ -53,7 +53,7 @@ class Blog(db.Model):
     is_published = db.Column(db.Boolean, nullable = False)
     
     # relationships
-    users= db.relationship("User", secondary = "editors", back_populates = "blogs", lazy = True,)
+    users= db.relationship("User", secondary ="editors", back_populates = "blogs", lazy = True,)
     
     editors = db.relationship("Editors", back_populates="blogs", lazy=True, cascade = "all, delete-orphan")
     
