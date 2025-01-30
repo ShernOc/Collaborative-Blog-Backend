@@ -141,16 +141,16 @@ def delete_user(user_id):
     else:
          return jsonify({"Error": "User does not exist"}), 406
      
-# # Delete All users / Can be done by the admin 
+# Delete All users / Can be done by the admin 
 
-# @user_bp.route('/users', methods=['DELETE']) 
-# @jwt_required()      
-# def delete_all_user():
-#     current_user_id = get_jwt_identity()
-#     #get the all the users
-#     user = User.query.delete()
-#     db.session.commit()
-#     return jsonify({"Success":"Users deleted successfully"}), 201
+@user_bp.route('/users', methods=['DELETE']) 
+@jwt_required()      
+def delete_all_user():
+    current_user_id = get_jwt_identity()
+    #get the all the users
+    user = User.query.delete()
+    db.session.commit()
+    return jsonify({"Success":"Users deleted successfully"}), 201
 
 
       
