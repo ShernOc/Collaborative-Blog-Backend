@@ -25,7 +25,7 @@ def login():
         return jsonify({"access_token":access_token}), 200
     # pass an error 
     else: 
-        return jsonify({"Error":"Email/Password is incorrect"}), 404
+        return jsonify({"Error":"Not Logged in "}), 404
     
 #get the current user functions
 @auth_bp.route('/current_user', methods = ['GET'])

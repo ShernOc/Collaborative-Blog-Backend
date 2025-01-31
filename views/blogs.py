@@ -4,15 +4,17 @@ from werkzeug.security import generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 #Blue print 
+
 blog_bp = Blueprint("blog_bp", __name__)
 
+#Get all blogs :
 @blog_bp.route('/blogs', methods = ['GET'])
 @jwt_required()
 def get_blogs():
+    # get all the blogs
     current_user_id = get_jwt_identity()
-    #get all the users 
-    blogs = Blog.query.filter_by(user_id = current_user_id)
-    
+    # blogs = Blog.query.filter_by(user_id = current_user_id)
+    blogs = Blog.query.get(current_user_id)
     #create an empty list to store the blogs
     blog_list= []
     
@@ -26,12 +28,11 @@ def get_blogs():
         })
     return jsonify({"All blogs":blog_list})
 
-# Get blogs by id 
-@blog_bp.route('/blogs/<int:blog_id>', methods = ['GET'])
+# Get blogs by id:This is private requires an id. 
+@blog_bp.route('/blogs/int:blog_id>', methods = ['GET'])
 @jwt_required()
 def get_blog_id(blog_id):
     current_user_id = get_jwt_identity()
-
     blog = Blog.query.filter_by(id=blog_id, user_id = current_user_id).first()
     if blog:
         return jsonify({  
@@ -54,6 +55,7 @@ def get_blog_id(blog_id):
 
 
 #Create a blog
+# still need to be authenticated and need to be logged in. 
 @blog_bp.route('/blogs', methods = ["POST"])
 @jwt_required()
 def post_blog_id():
@@ -79,12 +81,13 @@ def post_blog_id():
         db.session.commit()
         return jsonify({"Success": "The blog added successfully"}), 201
       
-#Update a Blog  
+#Update a Blog 
+# Update a blog only if you are logged in.  
 @blog_bp.route('/blogs/<blog_id>', methods = ["PATCH","PUT"])
 @jwt_required()
 def update_blog_id(blog_id):
     current_user_id = get_jwt_identity()
-    # blogs will be none if no blog is found
+    # None if no blogs in the system. 
     # get all the Users 
     blog= Blog.query.get(blog_id)
     
