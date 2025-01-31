@@ -59,9 +59,9 @@ def get_user_id(user_id):
     
 #Create a User  
 @user_bp.route('/users', methods = ["POST"])
-# @jwt_required()
+@jwt_required()
 def post_user_id():
-    # current_user_id=get_jwt_identity()
+    current_user_id=get_jwt_identity()
     # get the data
     data = request.get_json()
     name = data["name"]
