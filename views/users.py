@@ -166,7 +166,3 @@ def delete_all_user(user_id):
         db.session.commit()
         return jsonify({"Success":f"User with {user_id}  has been deleted successfully"}), 200
     
-
-    
-    
-     
