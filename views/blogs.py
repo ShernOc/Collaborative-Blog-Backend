@@ -1,10 +1,9 @@
 from flask import jsonify,request, Blueprint
-from models import db, Blog
+from models import db, Blog , Editors
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 #Blue print 
-
 blog_bp = Blueprint("blog_bp", __name__)
 
 #Get all blogs :
@@ -69,12 +68,12 @@ def get_blog_id():
 def post_blog_id():
     current_user_id = get_jwt_identity()
     
-    if not blog.edit
+    if current_user_id:
     # get the data
-    data = request.get_json()
-    title = data["title"]
-    content = data["content"]
-    is_published= data["is_published"]
+        data = request.get_json()
+        title = data["title"]
+        content = data["content"]
+        is_published= data["is_published"]
     
     #Check title or user_id of the blog exist and if error message. 
     # check_title =Blog.query.filter_by(Blog.title==title and Blog.user_id !=current_user_id)
@@ -93,18 +92,22 @@ def post_blog_id():
         return jsonify({"Success":"Blog added successfully"}), 201
       
 #Update a Blog 
-# Update a blog only if you are logged in.  
-@blog_bp.route('/blogs/update', methods = ["PATCH","PUT"])
+# Update a blog only if you are logged in or an editor 
+@blog_bp.route('/blogs/update/<int:blog_id>', methods =["PATCH","PUT"])
 @jwt_required()
-def update_blog_id():
+def update_blog_id(blog_id):
     current_user_id = get_jwt_identity()
     # None if no blogs in the system. 
     # get all the Users 
-    blog= Blog.query.get(current_user_id)
+    blog= Blog.query.get(blog_id)
     
     # check if the user exist, 
     if not blog:
-        return jsonify({"Error": "Blog not found. Please check the ID."}), 404
+        return jsonify({"Error":"Blog not found/Unauthorized"}), 404
+    
+    #checks if user is the owner or an editor 
+    if int(blog.user_id) !=int(current_user_id) and not Editors.editor(current_user_id,blog_id):
+        return jsonify({"Error": "You are Unauthorized to edit this blog"}), 403
     
     #if the data is not provided issues the data
     data = request.get_json()
@@ -128,7 +131,7 @@ def update_blog_id():
             
         #commit the function 
         db.session.commit()
-    return jsonify({"Success":f"Blog with id of {blog} was updated successfully"}),200
+    return jsonify({"Success":f"Blog was updated successfully"}),200
 
 # Delete blog only by the user 
 @blog_bp.route('/blogs/delete/<int:blog_id>',methods=['DELETE']) 
@@ -140,7 +143,7 @@ def delete_blog(blog_id):
     blog =Blog.query.filter_by(id = blog_id, user_id=current_user_id).first()
     
     if not blog:
-        return jsonify({"Error": "Blog not found, authorized"}), 406 
+        return jsonify({"Error": "Blog not found/Unauthorized"}), 406 
     
     db.session.delete(blog)
     db.session.commit()
