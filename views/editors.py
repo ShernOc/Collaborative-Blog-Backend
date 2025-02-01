@@ -12,41 +12,42 @@ editor_bp = Blueprint("editor_bp", __name__)
 def get_all_editors():
     current_user_id=get_jwt_identity()
     # get all editors
-    editors = Editors.query.filter_by(user_id=current_user_id)
+    editors = Editors.query.all()
     #create an empty list 
     editors_list = []
-    
-    for edit in editors:
-        editors_list.append({
-            "id":edit.id,
-            "blog_id":edit.blog_id,
-            "user_id":edit.user_id,
-            "role":edit.role
-    })
-    return jsonify({"Editors": editors_list})
+    if current_user_id:
+        for edit in editors:
+            editors_list.append({
+                "id":edit.id,
+                "blog_id":edit.blog_id,
+                "user_id":edit.user_id,
+                "role":edit.role
+        })
+        return jsonify({"Editors": editors_list})
 
-# Get editor by id 
-@editor_bp.route('/editors/<int:editor_id>', methods = ['GET'])
-@jwt_required()
-def get_editors_id(editor_id):
-    current_user_id = get_jwt_identity()
+# # Get editor by id
+# @editor_bp.route('/editors/<int:editor_id>', methods = ['GET'])
+# @jwt_required()
+# def get_editors_id(editor_id):
+#     current_user_id = get_jwt_identity()
     
-    edit = Editors.query.filter_by(id = editor_id, user_id = current_user_id).first()
-    if edit:
-        return jsonify({  
-        "id":edit.id,
-        "blog_id":edit.blog_id,
-        "user_id":edit.user_id,
-        "role":edit.role,
+#     edit = Editors.query.get(editor_id)
+#     if current_user_id:
+#     for edit:
+#         return jsonify({  
+#         "id":edit.id,
+#         "blog_id":edit.blog_id,
+#         "user_id":edit.user_id,
+#         "role":edit.role,
         
-        # Provides the blogs title associated with the editor and user
-          "blogs":
-                {
-                    "title":edit.blogs.title if edit.blogs else "Blog not found"                
-                } 
-        }), 200
-    else: 
-        return jsonify({"Error": "Editor does not exist"}), 404
+#         # Provides the blogs title associated with the editor and user
+#           "blogs":
+#                 {
+#                     "title":edit.blogs.title if edit.blogs else "Blog not found"                
+#                 } 
+#         }), 200
+#     else: 
+#         return jsonify({"Error": "Editor does not exist"}), 404
     
 #Post/create an editor 
 @editor_bp.route('/editors',methods =['POST'])

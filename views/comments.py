@@ -7,7 +7,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 comment_bp = Blueprint("comment_bp", __name__)
 
-#fetch/get the comments
+#fetch/get the comments if logged in 
 @comment_bp.route('/comments', methods =['GET'])
 @jwt_required()
 def get_all_comments():
@@ -16,14 +16,15 @@ def get_all_comments():
     comments = Comment.query.filter_by(user_id=current_user_id)
     #create an empty list 
     comments_list = []
-    for comment in comments :
-        comments_list.append({
-            "id":comment.id,
-            "content":comment.content,
-            "user_id":comment.user_id,
-            "blog_id":comment.blog_id
-    })
-    return jsonify({"All Comments":comments_list})
+    if current_user_id:
+        for comment in comments :
+            comments_list.append({
+                "id":comment.id,
+                "content":comment.content,
+                "user_id":comment.user_id,
+                "blog_id":comment.blog_id
+        })
+        return jsonify({"All Comments":comments_list})
 
 # Get comments by id 
 @comment_bp.route('/comments/<int:comment_id>', methods = ['GET'])

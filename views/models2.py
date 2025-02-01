@@ -3,8 +3,6 @@ from sqlalchemy import MetaData, Enum
 from sqlalchemy.orm import validates 
 from datetime import datetime
 
-
-
 metadata = MetaData()
 
 db = SQLAlchemy(metadata=metadata)
@@ -50,6 +48,8 @@ class Blog(db.Model):
     content = db.Column(db.String(300), nullable = False)
     user_id= db.Column(db.Integer, db.ForeignKey("users.id"), nullable = False)
     # date = db.Column(db.DateTime, default = datetime.day)
+    
+    
     is_published = db.Column(db.Boolean, nullable = False)
     
     # relationships
@@ -58,14 +58,19 @@ class Blog(db.Model):
     editors = db.relationship("Editors", back_populates="blogs", lazy=True, cascade = "all, delete-orphan")
     
     comments = db.relationship("Comment", back_populates="blogs", cascade = "all, delete-orphan")
-    
-    #Check for users permission to edit a blog
-    def can_edit(self,user):
-        return self.user_id == user.id or Editors.editor(user.id,self.id)
-    
+     
+     #check if a user has persion to edit
+    def edit(self,user_id):
+        if self.user_id == user_id.id:
+            return True  # blog owner
+        
+        for editor in self.editors:
+            if editor.user_id ==user_id and editor.role =="editor":
+                return True
+        return False   # no user to edit if not editor 
 
-# Editors Table
-#Association table for many to many between the user and blog
+
+# Editors Table #Association table for many to many between the user and blog
 class Editors(db.Model):
     __tablename__ = "editors"
     
@@ -78,11 +83,7 @@ class Editors(db.Model):
     users= db.relationship("User", back_populates = "editors")
     blogs= db.relationship("Blog", back_populates ="editors")
     
-    # looking if a user is an editor or a blog 
-    @staticmethod
-    def editor(user_id,blog_id):
-        return db.session.query(Editors).filter_by(user_id=user_id, blog_id=blog_id, role = "editor").first() is not None
-    
+
 #Comment table 
 class Comment(db.Model):
     #table name 
@@ -90,7 +91,7 @@ class Comment(db.Model):
     #database
     id = db.Column(db.Integer, primary_key = True)
     # date = db.Column(db.DateTime, default =datetime.day)
-    content = db.Column(db.String(256), nullable = False)
+    content = db.Column(db.String(120), nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable = False)
     blog_id = db.Column(db.Integer,db.ForeignKey("blogs.id"), nullable = False)
     

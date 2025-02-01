@@ -68,6 +68,8 @@ def get_blog_id():
 @jwt_required()
 def post_blog_id():
     current_user_id = get_jwt_identity()
+    
+    if not blog.edit
     # get the data
     data = request.get_json()
     title = data["title"]
