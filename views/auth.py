@@ -16,6 +16,9 @@ def login():
     email=data.get("email",None )
     password=data.get("password",None)
     
+    return jsonify({"message": "Login successful"})
+    
+    
     #check if the user with the email exist (if)
     user=User.query.filter_by(email=email).first()
     
@@ -42,6 +45,7 @@ def current_user():
                 "email":user.email}]
     
     return jsonify( {"Current_user":user_data})
+    
 
 #Logout / Revoke 
 @auth_bp.route("/logout", methods=["DELETE"])

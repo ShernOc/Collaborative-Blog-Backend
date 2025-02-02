@@ -19,8 +19,7 @@ def get_all_users():
         user_list.append({  "id": user.id,
         "name":user.name,
         "email":user.email,
-        "password": user.password,
-        # "is_admin":user.is_admin,   
+        "password": user.password  
         })
     return jsonify({"All Users":user_list})
 
@@ -34,7 +33,6 @@ def get_user_id(user_id):
         "name":user.name,
         "email":user.email,
         "password": user.password,
-        # "is_admin":user.is_admin,
         #Provides the blogs of the users have created
           "blogs":[
                 {
@@ -81,7 +79,7 @@ def post_user_id():
     name = data["name"]
     email = data["email"]
     password =generate_password_hash(data["password"])
-    # is_admin=data["is_admin"]
+
     
     #Check name or email of the user exist and if error message. 
     check_name = User.query.filter_by(name=name).first()
@@ -116,9 +114,8 @@ def update_user():
     name = data.get("name", user.name)
     email = data.get("email", user.email)
     password = data.get("password", user.password)
-    # is_admin= data.get("is_admin", user.is_admin)    
-    
-    
+   
+     
     # user= User.query.get(current_user_id)
     # check if the name already exist in the database 
     check_name = User.query.filter_by(name=name and id!=user).first()
@@ -136,7 +133,7 @@ def update_user():
         #if no conflict update data
             user.name = name 
             user.email = email
-            # user.is_admin = is_admin
+    
             if password:
                 user.password = generate_password_hash(password)
         

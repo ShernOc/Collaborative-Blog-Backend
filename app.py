@@ -13,6 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 # CORS(app, origins=["http://127.0.0.1:5000","https://collaborative-blog-backend.onrender.com","http://127.0.0.1:5173"])
+CORS(app, origins=["http://localhost:5173"]) 
 
 # #create a migration. config parameters
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
