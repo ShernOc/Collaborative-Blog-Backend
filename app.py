@@ -12,6 +12,8 @@ app = Flask(__name__)
 
 CORS(app)
 
+# CORS(app, origins=["http://127.0.0.1:5000","https://collaborative-blog-backend.onrender.com","http://127.0.0.1:5173"])
+
 # #create a migration. config parameters
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 
@@ -29,6 +31,12 @@ app.register_blueprint(blog_bp)
 app.register_blueprint(editor_bp)
 app.register_blueprint(comment_bp)
 app.register_blueprint(auth_bp)
+
+
+
+@app.route('/api/data')
+def data():
+    return jsonify({'message': 'Hello from JSON'})
 
 @app.route('/')
 def index(): 

@@ -1,3 +1,4 @@
+import flask
 from flask import jsonify,request, Blueprint
 from models import db, User
 from werkzeug.security import generate_password_hash
@@ -19,7 +20,7 @@ def get_all_users():
         "name":user.name,
         "email":user.email,
         "password": user.password,
-        "is_admin":user.is_admin,   
+        # "is_admin":user.is_admin,   
         })
     return jsonify({"All Users":user_list})
 
@@ -33,7 +34,7 @@ def get_user_id(user_id):
         "name":user.name,
         "email":user.email,
         "password": user.password,
-        "is_admin":user.is_admin,
+        # "is_admin":user.is_admin,
         #Provides the blogs of the users have created
           "blogs":[
                 {
@@ -56,14 +57,31 @@ def get_user_id(user_id):
     
 #Create /post a User 
 @user_bp.route('/users', methods = ["POST"])
-# No need to create an authentication since you are posting. 
 def post_user_id():
-    # get the data
-    data = request.get_json()
+    
+    data = request.get_json(force=True, silent=True)
+    
+    print("Receiving data:", data)
+    
+    if not data: 
+        return jsonify({"Error": "Invalid request "})
+    
+    required_fields = ["name", "email", "password"]
+    
+    missing_fields = [field for field in required_fields if field not in data]
+    
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
+    # is_admin = bool(data.get("is_admin", False))
+
+    if missing_fields:
+        return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
+    
     name = data["name"]
     email = data["email"]
     password =generate_password_hash(data["password"])
-    is_admin= data["is_admin"]
+    # is_admin=data["is_admin"]
     
     #Check name or email of the user exist and if error message. 
     check_name = User.query.filter_by(name=name).first()
@@ -73,12 +91,12 @@ def post_user_id():
         return jsonify({"Error": "The User already added"}), 406
     else: 
         #create a new user 
-        new_user = User(name=name,email=email,password=password,is_admin=is_admin)
+        new_user = User(name=name,email=email,password=password)
         
         #call the function 
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({"Success": "User added successfully"}), 201
+        return jsonify({"success": "User added successfully"}), 201
     
 #Update a User  
 @user_bp.route('/users/update', methods = ["PATCH","PUT"])
@@ -98,7 +116,7 @@ def update_user():
     name = data.get("name", user.name)
     email = data.get("email", user.email)
     password = data.get("password", user.password)
-    is_admin= data.get("is_admin", user.is_admin)    
+    # is_admin= data.get("is_admin", user.is_admin)    
     
     
     # user= User.query.get(current_user_id)
@@ -111,14 +129,14 @@ def update_user():
         return jsonify({"Error": "Name or Email already exist. Update a different name or email or something else"}),406
     
     #check if the data is the identical to the current_user/ and nothing has been changed.
-    if name==user.name and email==user.email and is_admin==user.is_admin:
+    if name==user.name and email==user.email:
         return jsonify({"Error":"No change detected in your update"}), 400
     
     else: 
         #if no conflict update data
             user.name = name 
             user.email = email
-            user.is_admin = is_admin
+            # user.is_admin = is_admin
             if password:
                 user.password = generate_password_hash(password)
         
@@ -152,7 +170,7 @@ def delete_all_user(user_id):
     current_user_id = get_jwt_identity()
     current_user = User.query.get(current_user_id) # get the admin id. 
     # get the all the user
-    if not current_user or not current_user.is_admin:
+    if not current_user :
         return jsonify({"Error": "You are not an admin to delete an account "}), 403 
     
     user_delete= User.query.get(user_id)

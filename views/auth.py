@@ -39,8 +39,7 @@ def current_user():
     user_data = [{
                 "id":user.id,
                 "username":user.username,
-                "email":user.email, 
-                "is_admin":user.is_admin}]
+                "email":user.email}]
     
     return jsonify( {"Current_user":user_data})
 

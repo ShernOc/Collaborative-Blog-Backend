@@ -105,7 +105,7 @@ def comment_data():
             db.session.rollback()
 
 # if __name__ == "__main__":
-    # user_data()
-    # blog_data()
-    # editor_data()
-    # comment_data()
+#     user_data()
+#     blog_data()
+#     editor_data()
+#     comment_data()

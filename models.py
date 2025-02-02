@@ -24,7 +24,7 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable = False)
     email = db.Column(db.String(128), nullable = False)
     password = db.Column(db.String(512), nullable = False)
-    is_admin = db.Column(db.Boolean, default = False)
+    # is_admin = db.Column(db.Boolean, default = False)
     
     #A user write many blogs: Many to many via the editors
     #relationships
