@@ -13,10 +13,10 @@ def get_all_editors():
     current_user_id=get_jwt_identity()
     # get all editors
     editors = Editors.query.all()
-    user = User.query.all(current_user_id)
+    user = User.query.get(current_user_id)
     #create an empty list 
     editors_list = []
-    if user or user.is_admin:
+    if user:
         for edit in editors:
                 editors_list.append({
                     "id":edit.id,
@@ -36,7 +36,7 @@ def get_editors_id(editor_id):
     
     editor = Editors. query.all()
 
-    if not user or not user.is_admin:
+    if not user:
         return jsonify({"Error": "Not authorized to access only admin"})
     
     #check if the editor exist 
@@ -68,7 +68,7 @@ def assign_editor(blog_id,user_id):
     
     users = User.query.get(current_user_id)
     
-    if blog.user_id != current_user_id and not users.is_admin:
+    if blog.user_id != current_user_id:
         return jsonify({"Error": " You are Unauthorized to assign editor role."}), 403
     
     already_editor = Editor.query.fitler_by(blog_id=blog_id, user_id=user_id).first()
@@ -96,7 +96,7 @@ def update_editor_id(editor_id):
         return jsonify({"Error": "Editor is not found"}), 404
     
     # check if the edit exist, 
-    if editor != current_user_id and not users.is_admin :
+    if editor != current_user_id :
         return jsonify({"Error": "Editor not found, authorized  to update "}),404
     
     #get the data to pass the new editor 
@@ -136,7 +136,7 @@ def delete_editors(user_id, blog_id):
     
     #check if user is admin 
     user = User.query.get(current_user_id)
-    if blog.user_id !=current_user_id and not user.is_admin:
+    if blog.user_id !=current_user_id:
         return jsonify({"Error": "Not authorized to remove an editor role"}), 403
     
     remove_editor= Editors.query.filter_by(blog_id=blog_id, user_id =user_id).first()

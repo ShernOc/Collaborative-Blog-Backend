@@ -16,12 +16,9 @@ def login():
     email=data.get("email",None )
     password=data.get("password",None)
     
-    return jsonify({"message": "Login successful"})
-    
-    
     #check if the user with the email exist (if)
     user=User.query.filter_by(email=email).first()
-    
+
     if user and check_password_hash(user.password,password):
         access_token = create_access_token(identity=str(user.id))
         print("Generated Token:", access_token)  # Debugging Line
@@ -29,7 +26,7 @@ def login():
     # pass an error 
     else: 
         return jsonify({"Error":"Not Logged in "}), 404
-    
+        
 #get the current user functions
 @auth_bp.route('/current_user', methods = ['GET'])
 @jwt_required()
@@ -41,7 +38,7 @@ def current_user():
     #get the user data object 
     user_data = [{
                 "id":user.id,
-                "username":user.username,
+                "name":user.name,
                 "email":user.email}]
     
     return jsonify( {"Current_user":user_data})
