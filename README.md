@@ -5,7 +5,7 @@ The backend is built using Flask, while the frontend utilizes React and Vite for
 
 # VIDEO DEMO: 
 Youtube: https://youtu.be/QRglyPjf5Yk
-https://drive.google.com/file/d/1YUdaQjxTLjI9qp_KoaumVBPIXCrR8hcM/view
+
 
 # - DEPLOYMENT: 
 - Vercel-Client: https://collaborative-blog-frontend.vercel.app/
