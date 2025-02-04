@@ -4,6 +4,7 @@
 The backend is built using Flask, while the frontend utilizes React and Vite for a smoother development experience. 
 
 # VIDEO DEMO: 
+Youtube: https://youtu.be/QRglyPjf5Yk
 https://drive.google.com/file/d/1YUdaQjxTLjI9qp_KoaumVBPIXCrR8hcM/view
 
 # - DEPLOYMENT: 
