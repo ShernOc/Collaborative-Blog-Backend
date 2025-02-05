@@ -3,9 +3,14 @@
 - Collaborative Blog Platform is a blogging platform where users can share their thoughts, write blogs, comment on them, and collaborate with others on blog posts.
 The backend is built using Flask, while the frontend utilizes React and Vite for a smoother development experience. 
 
+<<<<<<< HEAD
 # VIDEO DEMO: 
 Youtube: https://youtu.be/QRglyPjf5Yk
 
+=======
+# VIDEO DEMO:
+Youtube: https://youtu.be/QRglyPjf5Yk
+>>>>>>> ad695e0 (update readme)
 
 # - DEPLOYMENT: 
 - Vercel-Client: https://collaborative-blog-frontend.vercel.app/

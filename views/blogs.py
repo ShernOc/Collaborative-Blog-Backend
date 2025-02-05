@@ -40,7 +40,7 @@ def get_blogs():
 
 # Get blogs by current_user_id :This is private requires an id. 
 @blog_bp.route('/blogs/all', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_blog_id():
     current_user_id = get_jwt_identity()
     
