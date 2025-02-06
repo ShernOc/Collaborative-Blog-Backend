@@ -36,12 +36,15 @@ def current_user():
     #fetch the user
     user = User.query.get(current_user_id)
     #get the user data object 
-    user_data = [{
+    if user:
+        user_data = {
                 "id":user.id,
                 "name":user.name,
-                "email":user.email}]
+                "email":user.email}
     
-    return jsonify( {"Current_user":user_data})
+        return jsonify( {"Current_user":user_data}), 200
+    return jsonify({"message":"User not found"}), 404
+
     
 
 #Logout / Revoke 
@@ -52,6 +55,6 @@ def logout():
     now = datetime.now(timezone.utc)
     db.session.add(TokenBlocklist(jti=jti, created_at=now))
     db.session.commit()
-    return jsonify({"Success" : "User has been logged out Successfully "})
+    return jsonify({"Success":"User has been logged out Successfully "})
 
 

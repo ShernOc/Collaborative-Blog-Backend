@@ -57,24 +57,13 @@ def get_user_id(user_id):
 @user_bp.route('/users', methods = ["POST"])
 def post_user_id():
     
-    data = request.get_json(force=True, silent=True)
+    # data = request.get_json(force=True, silent=True)
+    data = request.get_json()
     
     print("Receiving data:", data)
     
     if not data: 
         return jsonify({"Error": "Invalid request "})
-    
-    required_fields = ["name", "email", "password"]
-    
-    missing_fields = [field for field in required_fields if field not in data]
-    
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
-
-
-    if missing_fields:
-        return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
     
     name = data["name"]
     email = data["email"]
@@ -86,7 +75,7 @@ def post_user_id():
     check_email = User.query.filter_by(email=email).first()
     
     if check_name or check_email:
-        return jsonify({"Error": "The User already added"}), 406
+        return jsonify({"Error": "The User already added "}), 406
     else: 
         #create a new user 
         new_user = User(name=name,email=email,password=password)
